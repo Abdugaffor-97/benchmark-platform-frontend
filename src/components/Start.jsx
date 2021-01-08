@@ -41,7 +41,7 @@ class Start extends Component {
           loading: false,
           currentQuestion: exam.questions[0],
         });
-        console.log(this.state.currentQuestion);
+        // console.log(this.state.currentQuestion);
       }
     } catch (error) {
       this.setState({ error: true, loading: false });
@@ -61,15 +61,21 @@ class Start extends Component {
           "Content-Type": "application/json",
         }),
       });
-      console.log(res);
       if (res.ok) {
         providedAns.question += 1;
-        console.log(providedAns);
         this.setState({
           loading: false,
           providedAnswer: providedAns,
           currentQuestion: this.state.exam.questions[providedAns.question],
         });
+
+        if (providedAns.question === this.state.exam.questions.length) {
+          const data = await res.json();
+          const examWithAns = { ...this.state.exam, questions: data };
+          console.log(data);
+          this.setState({ exam: examWithAns });
+          console.log(providedAns.question, this.state.exam.questions.length);
+        }
       } else {
         this.setState({ loading: false, error: res.statusText });
       }
@@ -97,42 +103,58 @@ class Start extends Component {
         <Row>
           {exam && (
             <>
-              <div className="d-flex justify-content-between w-100">
-                <h3>{currentQuestion.duration}</h3>
-                <h3>
-                  {providedAnswer.question + 1}/{exam.questions.length}
-                </h3>
-              </div>
-              <br />
-              <h2>Question {providedAnswer.question + 1}</h2>
+              {currentQuestion ? (
+                <>
+                  <div className="d-flex justify-content-between align-items-center w-100">
+                    <h4>
+                      {providedAnswer.question + 1}/{exam.questions.length}{" "}
+                      {exam.name}
+                    </h4>
+                    <div className="border-bottom">
+                      Time Remaining:{" "}
+                      <h2 style={{ display: "inline" }}>
+                        {currentQuestion.duration}
+                      </h2>
+                    </div>
+                  </div>
+                  <br />
+                  <h2>Question {providedAnswer.question + 1}</h2>
 
-              <p>{currentQuestion.text}</p>
-              <br />
-              <form onSubmit={this.submitQuestion}>
-                <p>Select your answer:</p>
-                {currentQuestion.answers.map((ans, idx) => (
-                  <Col key={idx}>
-                    <input
-                      type="radio"
-                      id={idx}
-                      name={providedAnswer.question}
-                      value={ans.text}
-                      onChange={() => {
-                        this.setState({
-                          providedAnswer: {
-                            ...this.state.providedAnswer,
-                            answer: idx,
-                          },
-                        });
-                      }}
-                    />
-                    {"  "}
-                    <label htmlFor={idx}>{ans.text}</label>
-                    <br></br>
-                  </Col>
-                ))}
-                <input type="submit" value="Submit" />
-              </form>
+                  <p>{currentQuestion.text}</p>
+                  <br />
+                  <form onSubmit={this.submitQuestion}>
+                    <p>Select your answer:</p>
+                    {currentQuestion.answers.map((ans, idx) => (
+                      <Col key={idx}>
+                        <input
+                          type="radio"
+                          id={idx}
+                          name={providedAnswer.question}
+                          value={ans.text}
+                          onChange={() => {
+                            this.setState({
+                              providedAnswer: {
+                                ...this.state.providedAnswer,
+                                answer: idx,
+                              },
+                            });
+                          }}
+                        />
+                        {"  "}
+                        <label htmlFor={idx}>{ans.text}</label>
+                        <br></br>
+                      </Col>
+                    ))}
+                    <input type="submit" value="Submit" />
+                  </form>
+                </>
+              ) : (
+                <div>
+                  {exam.questions.map((q) => (
+                    <p>{JSON.stringify(q)}</p>
+                  ))}
+                </div>
+              )}
             </>
           )}
           {loading && <Spinner animation="border" variant="warning" />}
