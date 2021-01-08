@@ -1,5 +1,5 @@
 import { Component } from "react";
-import { Container, Spinner, Alert } from "react-bootstrap";
+import { Container, Spinner, Alert, Col, Row } from "react-bootstrap";
 
 class Start extends Component {
   constructor(props) {
@@ -8,9 +8,10 @@ class Start extends Component {
       exam: null,
       loading: true,
       error: false,
-      currentDuration: 50,
+      currentQuestion: null,
+      answer: { question: 0, answer: null },
     };
-    this.url = process.env.REACT_APP_BE_URL;
+    this.BE_URL = process.env.REACT_APP_BE_URL;
   }
 
   fetchData = async () => {
@@ -23,9 +24,7 @@ class Start extends Component {
       totalDuration: 30,
     };
 
-    const startUlr = this.url + "/exams/start";
-    console.log(startUlr);
-
+    const startUlr = this.BE_URL + "/exams/start";
     try {
       const res = await fetch(startUlr, {
         method: "POST",
@@ -37,10 +36,29 @@ class Start extends Component {
 
       if (res.ok) {
         const exam = await res.json();
-        this.setState({ exam: exam, loading: false });
+        this.setState({
+          exam: exam,
+          loading: false,
+          currentQuestion: exam.questions[this.state.answer.question],
+        });
       }
     } catch (error) {
       this.setState({ error: true, loading: false });
+    }
+  };
+
+  submitQuestion = async (e) => {
+    e.preventDefault();
+    const submitUrl = this.BE_URL + `/${this.state.exam._id}/answer`;
+    try {
+      const res = await fetch(submitUrl, {
+        method: "POST",
+        body: JSON.stringify(this.state.answer),
+      });
+    } catch (error) {
+      this.setState({
+        error: "Error occured while submitting answer. Try again",
+      });
     }
   };
 
@@ -48,20 +66,53 @@ class Start extends Component {
     this.fetchData();
   };
 
+  updateAnswer = (e) => {
+    const providedAns = { ...this.state.answer };
+    const currentId = e.currentTarget.id;
+    providedAns.answer = currentId;
+    this.setState({ answer: providedAns });
+  };
+
   render() {
-    const { error, loading, exam } = this.state;
+    const { error, loading, exam, currentQuestion, answer } = this.state;
+    console.log("currentQuestion", currentQuestion);
     return (
       <Container>
-        {loading && <Spinner animation="border" variant="warning" />}
         {error && <Alert variant="danger">This is a alert—check it out!</Alert>}
-        {exam && (
-          <>
-            <h2>Question</h2>
-            {exam.questions.map((question) => {
-              console.log(question);
-            })}
-          </>
-        )}
+        <Row>
+          {loading && <Spinner animation="border" variant="warning" />}
+          {exam && (
+            <>
+              <div className="d-flex justify-content-between w-100">
+                <h3>{currentQuestion.duration}</h3>
+                <h3>
+                  {answer.question + 1}/{exam.questions.length}
+                </h3>
+              </div>
+              <br />
+              <h2>Question {1}</h2>
+              {currentQuestion.text}
+              <br />
+              <form>
+                <p>Please select your age:</p>
+                {currentQuestion.answers.map((ans, idx) => (
+                  <Col key={idx}>
+                    <input
+                      type="radio"
+                      id={idx}
+                      name={answer.question}
+                      value={ans.text}
+                      onChange={this.updateAnswer}
+                    />
+                    <label htmlFor={idx}>{ans.text}</label>
+                    <br></br>
+                  </Col>
+                ))}
+                <input type="submit" value="Submit" />
+              </form>
+            </>
+          )}
+        </Row>
       </Container>
     );
   }
