@@ -9,7 +9,7 @@ class Start extends Component {
       loading: true,
       error: false,
       currentQuestion: null,
-      answer: { question: 0, answer: null },
+      providedAnswer: { question: 0, answer: null },
     };
     this.BE_URL = process.env.REACT_APP_BE_URL;
   }
@@ -39,7 +39,7 @@ class Start extends Component {
         this.setState({
           exam: exam,
           loading: false,
-          currentQuestion: exam.questions[this.state.answer.question],
+          currentQuestion: exam.questions[this.state.providedAnswer.question],
         });
       }
     } catch (error) {
@@ -53,7 +53,7 @@ class Start extends Component {
     try {
       const res = await fetch(submitUrl, {
         method: "POST",
-        body: JSON.stringify(this.state.answer),
+        body: JSON.stringify(this.state.providedAnswer),
       });
     } catch (error) {
       this.setState({
@@ -66,15 +66,14 @@ class Start extends Component {
     this.fetchData();
   };
 
-  updateAnswer = (e) => {
-    const providedAns = { ...this.state.answer };
-    const currentId = e.currentTarget.id;
-    providedAns.answer = currentId;
-    this.setState({ answer: providedAns });
-  };
-
   render() {
-    const { error, loading, exam, currentQuestion, answer } = this.state;
+    const {
+      error,
+      loading,
+      exam,
+      currentQuestion,
+      providedAnswer,
+    } = this.state;
     console.log("currentQuestion", currentQuestion);
     return (
       <Container>
@@ -86,24 +85,33 @@ class Start extends Component {
               <div className="d-flex justify-content-between w-100">
                 <h3>{currentQuestion.duration}</h3>
                 <h3>
-                  {answer.question + 1}/{exam.questions.length}
+                  {providedAnswer.question + 1}/{exam.questions.length}
                 </h3>
               </div>
               <br />
               <h2>Question {1}</h2>
-              {currentQuestion.text}
+
+              <p>{currentQuestion.text}</p>
               <br />
               <form>
-                <p>Please select your age:</p>
+                <p>Select your answer:</p>
                 {currentQuestion.answers.map((ans, idx) => (
                   <Col key={idx}>
                     <input
                       type="radio"
                       id={idx}
-                      name={answer.question}
+                      name={providedAnswer.question}
                       value={ans.text}
-                      onChange={this.updateAnswer}
+                      onChange={() => {
+                        this.setState({
+                          providedAnswer: {
+                            ...this.state.providedAnswer,
+                            answer: idx,
+                          },
+                        });
+                      }}
                     />
+                    {"  "}
                     <label htmlFor={idx}>{ans.text}</label>
                     <br></br>
                   </Col>
