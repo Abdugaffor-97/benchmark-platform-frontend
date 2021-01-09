@@ -10,9 +10,16 @@ class Start extends Component {
       error: false,
       currentQuestion: null,
       providedAnswer: { question: 0, answer: null },
+      currentDuration: 0,
     };
     this.BE_URL = process.env.REACT_APP_BE_URL;
   }
+
+  timer = () => {
+    setInterval(() => {
+      this.setState({ currentDuration: this.state.currentDuration - 1 });
+    }, 1000);
+  };
 
   fetchData = async () => {
     const search = this.props.location.search;
@@ -40,7 +47,9 @@ class Start extends Component {
           exam: exam,
           loading: false,
           currentQuestion: exam.questions[0],
+          currentDuration: exam.questions[0].duration,
         });
+
         // console.log(this.state.currentQuestion);
       }
     } catch (error) {
@@ -72,9 +81,8 @@ class Start extends Component {
         if (providedAns.question === this.state.exam.questions.length) {
           const data = await res.json();
           const examWithAns = { ...this.state.exam, questions: data };
-          console.log(data);
+          // console.log(data);
           this.setState({ exam: examWithAns });
-          console.log(providedAns.question, this.state.exam.questions.length);
         }
       } else {
         this.setState({ loading: false, error: res.statusText });
@@ -88,6 +96,7 @@ class Start extends Component {
 
   componentDidMount = () => {
     this.fetchData();
+    this.timer(this.state.currentDuration);
   };
 
   render() {
@@ -97,10 +106,11 @@ class Start extends Component {
       exam,
       currentQuestion,
       providedAnswer,
+      currentDuration,
     } = this.state;
     return (
       <Container>
-        <Row>
+        <Row className="mx-1 my-5">
           {exam && (
             <>
               {currentQuestion ? (
@@ -112,9 +122,7 @@ class Start extends Component {
                     </h4>
                     <div className="border-bottom">
                       Time Remaining:{" "}
-                      <h2 style={{ display: "inline" }}>
-                        {currentQuestion.duration}
-                      </h2>
+                      <h2 style={{ display: "inline" }}>{currentDuration}</h2>
                     </div>
                   </div>
                   <br />
@@ -150,8 +158,41 @@ class Start extends Component {
                 </>
               ) : (
                 <div>
-                  {exam.questions.map((q) => (
-                    <p>{JSON.stringify(q)}</p>
+                  <div>
+                    <h1>Your Result: {console.log(exam.score)}</h1>
+                  </div>
+
+                  {exam.questions.map((question, idx) => (
+                    <div className="my-4" key={idx}>
+                      <h4>Question {idx + 1}</h4>
+                      {/* <p>{JSON.stringify(question)}</p> */}
+                      <div className="my-1">
+                        Duration: {question.duration} sec
+                      </div>
+                      <div className="my-1">Question: {question.text}</div>
+                      <div className="my-1">
+                        Provided Answer:{" "}
+                        {question.providedAnswer !== null ? (
+                          <b
+                            className={
+                              question.answers[question.providedAnswer]
+                                .isCorrect
+                                ? "text-success"
+                                : "text-danger"
+                            }
+                          >
+                            {question.answers[question.providedAnswer].text}
+                          </b>
+                        ) : (
+                          <b className="text-danger">Answer did not provided</b>
+                        )}
+                      </div>
+                      <div className="my-1">
+                        Correct answer:
+                        <b className="text-info">ANS</b>
+                        {/* {question.answers.find((ans) => ans.isCorrect)} */}
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
