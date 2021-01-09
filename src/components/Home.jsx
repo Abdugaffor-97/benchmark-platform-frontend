@@ -22,10 +22,17 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     maxWidth: 400,
-    margin: `${theme.spacing(1)}px auto`,
+    margin: `${theme.spacing(15)}px auto`,
     padding: theme.spacing(2),
+    backgroundColor: "#666666",
   },
   input: {
+    width: "100%",
+    backgroundColor: "white",
+    color: "red",
+    padding: "0 5px",
+  },
+  button: {
     width: "100%",
   },
 }));
@@ -42,10 +49,10 @@ const Home = (props) => {
         <Grid className={classes.grid}>
           <form className={classes.form} noValidate autoComplete="off">
             <TextField
+              error
               className={classes.input}
               id="candidate-name"
               label="Enter Your Name"
-              variant="outlined"
               onChange={(e) => {
                 setName(e.target.value);
               }}
@@ -57,9 +64,9 @@ const Home = (props) => {
               }}
             />
             <Button
-              className={classes.input}
+              className={classes.button}
               variant="contained"
-              color="primary"
+              color="secondary"
               onClick={() => props.history.push(`/start?name=${name}`)}
             >
               Start
