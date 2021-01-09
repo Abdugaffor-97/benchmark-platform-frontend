@@ -18,6 +18,10 @@ class Start extends Component {
   timer = () => {
     setInterval(() => {
       this.setState({ currentDuration: this.state.currentDuration - 1 });
+      console.log(this.state.currentDuration);
+      if (this.state.currentDuration === 0) {
+        this.submitQuestion();
+      }
     }, 1000);
   };
 
@@ -58,7 +62,9 @@ class Start extends Component {
   };
 
   submitQuestion = async (e) => {
-    e.preventDefault();
+    if (e) {
+      e.preventDefault();
+    }
     this.setState({ loading: true });
     const providedAns = this.state.providedAnswer;
     const submitUrl = this.BE_URL + `/exams/${this.state.exam._id}/answer`;
@@ -96,7 +102,7 @@ class Start extends Component {
 
   componentDidMount = () => {
     this.fetchData();
-    this.timer(this.state.currentDuration);
+    this.timer();
   };
 
   render() {
