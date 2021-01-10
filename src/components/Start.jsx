@@ -1,8 +1,15 @@
 import { Component } from "react";
 import { Container, Spinner, Alert, Col, Row } from "react-bootstrap";
 import { fetchExam } from "../helperFunctions/fetcherFuncs";
-import Typography from "@material-ui/core/Typography";
+import { Typography, makeStyles, colors } from "@material-ui/core";
 import Question from "./Question";
+import red from "@material-ui/core/colors/red";
+
+// const usestyles = makeStyles(
+//   (theme = {
+//     timeTemain: red,
+//   })
+// );
 
 class Start extends Component {
   constructor(props) {
@@ -17,6 +24,8 @@ class Start extends Component {
     };
     this.BE_URL = process.env.REACT_APP_BE_URL;
   }
+
+  updateProvidedAns = () => {};
 
   timer = () => {
     setInterval(() => {
@@ -108,17 +117,33 @@ class Start extends Component {
               {currentQuestion ? (
                 <>
                   <div className="d-flex justify-content-between align-items-center w-100">
-                    <h4>
-                      {providedAnswer.question + 1}/{exam.questions.length}{" "}
-                      {exam.name}
-                    </h4>
+                    <div
+                      className="border-bottom my-3"
+                      style={{ color: "#00FF84" }}
+                    >
+                      <Typography
+                        variant="h4"
+                        style={{ display: "inline", color: "red" }}
+                      >
+                        {providedAnswer.question + 1}/{exam.questions.length}{" "}
+                      </Typography>
+
+                      <b>{exam.name}</b>
+                    </div>
                     <div className="border-bottom">
-                      Time Remaining:{" "}
-                      <h2 style={{ display: "inline" }}>{currentDuration}</h2>
+                      <b style={{ color: "#00FF84" }}>Time Remaining: </b>{" "}
+                      <Typography
+                        variant="h4"
+                        style={{ display: "inline", color: "red" }}
+                      >
+                        {currentDuration}
+                      </Typography>
                     </div>
                   </div>
                   <br />
-                  <h2>Question {providedAnswer.question + 1}</h2>
+                  <Typography variant="h4">
+                    Question {providedAnswer.question + 1}
+                  </Typography>
                   <Question
                     currentQuestion={currentQuestion}
                     providedAnswer={providedAnswer}
@@ -126,7 +151,6 @@ class Start extends Component {
                     setState={this.setState}
                     // providedAnswer,
                     // submitQuestion,
-                    // setState,
                   />
 
                   <p>{currentQuestion.text}</p>
@@ -143,7 +167,7 @@ class Start extends Component {
                           onChange={() => {
                             this.setState({
                               providedAnswer: {
-                                ...providedAnswer,
+                                ...this.state.providedAnswer,
                                 answer: idx,
                               },
                             });

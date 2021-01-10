@@ -13,7 +13,12 @@ const Home = (props) => {
   const classes = useStyles();
   return (
     <div className={classes.grid}>
-      <Typography variant="h3" component="h2" gutterBottom>
+      <Typography
+        style={{ color: "#00FF84" }}
+        variant="h3"
+        component="h2"
+        gutterBottom
+      >
         Assessment & Benchmarking
       </Typography>
       <Paper className={classes.paper}>

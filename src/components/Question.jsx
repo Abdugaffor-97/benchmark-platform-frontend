@@ -11,9 +11,11 @@ const Question = ({
 
   return (
     <div>
-      <Paper>
+      <Paper className={classes.paper}>
         <Grid>
-          <Typography>{currentQuestion.text}</Typography>
+          <Typography style={{ color: "#00FF84" }}>
+            {currentQuestion.text}
+          </Typography>
           <br />
           <form onSubmit={submitQuestion}>
             <Typography>Select your answer</Typography>
@@ -27,7 +29,9 @@ const Question = ({
                   onChange={updateAns}
                 />
                 {"  "}
-                <label htmlFor={idx}>{ans.text}</label>
+                <label style={{ color: "red", fontSize: 20 }} htmlFor={idx}>
+                  {ans.text}
+                </label>
                 <br></br>
               </div>
             ))}
