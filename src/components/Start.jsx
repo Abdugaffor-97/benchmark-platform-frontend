@@ -1,5 +1,8 @@
 import { Component } from "react";
 import { Container, Spinner, Alert, Col, Row } from "react-bootstrap";
+import { fetchExam } from "../helperFunctions/fetcherFuncs";
+import Typography from "@material-ui/core/Typography";
+import Question from "./Question";
 
 class Start extends Component {
   constructor(props) {
@@ -18,46 +21,25 @@ class Start extends Component {
   timer = () => {
     setInterval(() => {
       this.setState({ currentDuration: this.state.currentDuration - 1 });
-      console.log(this.state.currentDuration);
       if (this.state.currentDuration === 0) {
         this.submitQuestion();
       }
     }, 1000);
   };
 
-  fetchData = async () => {
-    const search = this.props.location.search;
-    const name = new URLSearchParams(search).get("name");
-
-    const examInfo = {
-      candidateName: name,
-      name: "Admission Test",
-      totalDuration: 30,
-    };
-
-    const startUlr = this.BE_URL + "/exams/start";
-    try {
-      const res = await fetch(startUlr, {
-        method: "POST",
-        body: JSON.stringify(examInfo),
-        headers: new Headers({
-          "Content-Type": "application/json",
-        }),
+  startExam = async () => {
+    const status = await fetchExam(this.BE_URL);
+    if (status.exam) {
+      this.setState({
+        exam: status.exam,
+        loading: false,
+        currentQuestion: status.exam.questions[0],
+        currentDuration: status.exam.questions[0].duration,
       });
-
-      if (res.ok) {
-        const exam = await res.json();
-        this.setState({
-          exam: exam,
-          loading: false,
-          currentQuestion: exam.questions[0],
-          currentDuration: exam.questions[0].duration,
-        });
-
-        // console.log(this.state.currentQuestion);
-      }
-    } catch (error) {
+    } else if (status.error) {
       this.setState({ error: true, loading: false });
+    } else if (status.status) {
+      this.setState({ error: status.status, loading: false });
     }
   };
 
@@ -86,7 +68,11 @@ class Start extends Component {
 
         if (providedAns.question === this.state.exam.questions.length) {
           const data = await res.json();
-          const examWithAns = { ...this.state.exam, questions: data };
+          const examWithAns = {
+            ...this.state.exam,
+            questions: data.questions,
+            score: data.score,
+          };
           // console.log(data);
           this.setState({ exam: examWithAns });
         }
@@ -100,8 +86,8 @@ class Start extends Component {
     }
   };
 
-  componentDidMount = () => {
-    this.fetchData();
+  componentDidMount = async () => {
+    this.startExam();
     this.timer();
   };
 
@@ -133,6 +119,15 @@ class Start extends Component {
                   </div>
                   <br />
                   <h2>Question {providedAnswer.question + 1}</h2>
+                  <Question
+                    currentQuestion={currentQuestion}
+                    providedAnswer={providedAnswer}
+                    submitQuestion={this.submitQuestion}
+                    setState={this.setState}
+                    // providedAnswer,
+                    // submitQuestion,
+                    // setState,
+                  />
 
                   <p>{currentQuestion.text}</p>
                   <br />
@@ -148,7 +143,7 @@ class Start extends Component {
                           onChange={() => {
                             this.setState({
                               providedAnswer: {
-                                ...this.state.providedAnswer,
+                                ...providedAnswer,
                                 answer: idx,
                               },
                             });
@@ -165,7 +160,9 @@ class Start extends Component {
               ) : (
                 <div>
                   <div>
-                    <h1>Your Result: {console.log(exam.score)}</h1>
+                    <Typography variant="h3">
+                      Your Result: {exam.score}
+                    </Typography>
                   </div>
 
                   {exam.questions.map((question, idx) => (
