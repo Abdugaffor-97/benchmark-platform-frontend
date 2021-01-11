@@ -113,7 +113,7 @@ class Start extends Component {
           <>
             {currentQuestion ? (
               <>
-                <div className="d-flex justify-content-between align-items-center w-100">
+                <div className="d-flex justify-content-between align-items-center w-75">
                   <div
                     className="border-bottom my-3"
                     style={{ color: "#00FF84" }}

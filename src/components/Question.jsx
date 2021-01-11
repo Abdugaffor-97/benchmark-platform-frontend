@@ -10,43 +10,41 @@ const Question = ({
   const classes = useStyles();
 
   return (
-    <div>
-      <Paper className={classes.paper}>
-        <Grid>
-          <Typography style={{ color: "#00FF84" }}>
-            {currentQuestion.text}
-          </Typography>
-          <br />
-          <form onSubmit={submitQuestion}>
-            <Typography>Select your answer</Typography>
-            {currentQuestion.answers.map((ans, idx) => (
-              <div key={idx}>
-                <input
-                  type="radio"
-                  id={idx}
-                  name={providedAnswer.question}
-                  value={ans.text}
-                  onChange={() => updateProvidedAns(idx)}
-                />
-                {"  "}
-                <label style={{ color: "red", fontSize: 20 }} htmlFor={idx}>
-                  {ans.text}
-                </label>
-                <br></br>
-              </div>
-            ))}
-            <Button
-              className={classes.button}
-              variant="contained"
-              color="secondary"
-              type="submit"
-            >
-              Submit
-            </Button>
-          </form>
-        </Grid>
-      </Paper>
-    </div>
+    <Paper className={classes.paper}>
+      <Grid>
+        <Typography style={{ color: "#00FF84" }}>
+          {currentQuestion.text}
+        </Typography>
+        <br />
+        <form onSubmit={submitQuestion}>
+          <Typography>Select your answer</Typography>
+          {currentQuestion.answers.map((ans, idx) => (
+            <div key={idx}>
+              <input
+                type="radio"
+                id={idx}
+                name={providedAnswer.question}
+                value={ans.text}
+                onChange={() => updateProvidedAns(idx)}
+              />
+              {"  "}
+              <label style={{ color: "red", fontSize: 20 }} htmlFor={idx}>
+                {ans.text}
+              </label>
+              <br></br>
+            </div>
+          ))}
+          <Button
+            className={classes.button}
+            variant="contained"
+            color="secondary"
+            type="submit"
+          >
+            Submit
+          </Button>
+        </form>
+      </Grid>
+    </Paper>
   );
 };
 
