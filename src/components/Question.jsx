@@ -5,7 +5,7 @@ const Question = ({
   currentQuestion,
   providedAnswer,
   submitQuestion,
-  updateAns,
+  updateProvidedAns,
 }) => {
   const classes = useStyles();
 
@@ -26,7 +26,7 @@ const Question = ({
                   id={idx}
                   name={providedAnswer.question}
                   value={ans.text}
-                  onChange={updateAns}
+                  onChange={() => updateProvidedAns(idx)}
                 />
                 {"  "}
                 <label style={{ color: "red", fontSize: 20 }} htmlFor={idx}>

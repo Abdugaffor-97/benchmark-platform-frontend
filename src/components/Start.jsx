@@ -1,15 +1,9 @@
 import { Component } from "react";
-import { Container, Spinner, Alert, Col, Row } from "react-bootstrap";
 import { fetchExam } from "../helperFunctions/fetcherFuncs";
-import { Typography, makeStyles, colors } from "@material-ui/core";
+import { Typography, LinearProgress } from "@material-ui/core";
+import Alert from "@material-ui/lab/Alert";
 import Question from "./Question";
-import red from "@material-ui/core/colors/red";
-
-// const usestyles = makeStyles(
-//   (theme = {
-//     timeTemain: red,
-//   })
-// );
+import Grid from "./styledGrid";
 
 class Start extends Component {
   constructor(props) {
@@ -25,13 +19,18 @@ class Start extends Component {
     this.BE_URL = process.env.REACT_APP_BE_URL;
   }
 
-  updateProvidedAns = () => {};
+  updateProvidedAns = (idx) => {
+    this.setState({
+      providedAnswer: { ...this.state.providedAnswer, answer: idx },
+    });
+  };
 
   timer = () => {
     setInterval(() => {
       this.setState({ currentDuration: this.state.currentDuration - 1 });
       if (this.state.currentDuration === 0) {
         this.submitQuestion();
+        this.setState({ currentDuration: this.state.currentQuestion.duration });
       }
     }, 1000);
   };
@@ -82,7 +81,6 @@ class Start extends Component {
             questions: data.questions,
             score: data.score,
           };
-          // console.log(data);
           this.setState({ exam: examWithAns });
         }
       } else {
@@ -110,125 +108,98 @@ class Start extends Component {
       currentDuration,
     } = this.state;
     return (
-      <Container>
-        <Row className="mx-1 my-5">
-          {exam && (
-            <>
-              {currentQuestion ? (
-                <>
-                  <div className="d-flex justify-content-between align-items-center w-100">
-                    <div
-                      className="border-bottom my-3"
-                      style={{ color: "#00FF84" }}
+      <Grid>
+        {exam && (
+          <>
+            {currentQuestion ? (
+              <>
+                <div className="d-flex justify-content-between align-items-center w-100">
+                  <div
+                    className="border-bottom my-3"
+                    style={{ color: "#00FF84" }}
+                  >
+                    <Typography
+                      variant="h4"
+                      style={{ display: "inline", color: "red" }}
                     >
-                      <Typography
-                        variant="h4"
-                        style={{ display: "inline", color: "red" }}
-                      >
-                        {providedAnswer.question + 1}/{exam.questions.length}{" "}
-                      </Typography>
+                      {providedAnswer.question + 1}/{exam.questions.length}{" "}
+                    </Typography>
 
-                      <b>{exam.name}</b>
-                    </div>
-                    <div className="border-bottom">
-                      <b style={{ color: "#00FF84" }}>Time Remaining: </b>{" "}
-                      <Typography
-                        variant="h4"
-                        style={{ display: "inline", color: "red" }}
-                      >
-                        {currentDuration}
-                      </Typography>
-                    </div>
+                    <b>{exam.name}</b>
                   </div>
-                  <br />
-                  <Typography variant="h4">
-                    Question {providedAnswer.question + 1}
-                  </Typography>
-                  <Question
-                    currentQuestion={currentQuestion}
-                    providedAnswer={providedAnswer}
-                    submitQuestion={this.submitQuestion}
-                    setState={this.setState}
-                    // providedAnswer,
-                    // submitQuestion,
-                  />
-
-                  <p>{currentQuestion.text}</p>
-                  <br />
-                  <form onSubmit={this.submitQuestion}>
-                    <p>Select your answer:</p>
-                    {currentQuestion.answers.map((ans, idx) => (
-                      <Col key={idx}>
-                        <input
-                          type="radio"
-                          id={idx}
-                          name={providedAnswer.question}
-                          value={ans.text}
-                          onChange={() => {
-                            this.setState({
-                              providedAnswer: {
-                                ...this.state.providedAnswer,
-                                answer: idx,
-                              },
-                            });
-                          }}
-                        />
-                        {"  "}
-                        <label htmlFor={idx}>{ans.text}</label>
-                        <br></br>
-                      </Col>
-                    ))}
-                    <input type="submit" value="Submit" />
-                  </form>
-                </>
-              ) : (
-                <div>
-                  <div>
-                    <Typography variant="h3">
-                      Your Result: {exam.score}
+                  <div className="border-bottom">
+                    <b style={{ color: "#00FF84" }}>Time Remaining: </b>{" "}
+                    <Typography
+                      variant="h4"
+                      style={{ display: "inline", color: "red" }}
+                    >
+                      {currentDuration}
                     </Typography>
                   </div>
-
-                  {exam.questions.map((question, idx) => (
-                    <div className="my-4" key={idx}>
-                      <h4>Question {idx + 1}</h4>
-                      {/* <p>{JSON.stringify(question)}</p> */}
-                      <div className="my-1">
-                        Duration: {question.duration} sec
-                      </div>
-                      <div className="my-1">Question: {question.text}</div>
-                      <div className="my-1">
-                        Provided Answer:{" "}
-                        {question.providedAnswer !== null ? (
-                          <b
-                            className={
-                              question.answers[question.providedAnswer]
-                                .isCorrect
-                                ? "text-success"
-                                : "text-danger"
-                            }
-                          >
-                            {question.answers[question.providedAnswer].text}
-                          </b>
-                        ) : (
-                          <b className="text-danger">Answer did not provided</b>
-                        )}
-                      </div>
-                      <div className="my-1">
-                        Correct answer:
-                        <b className="text-info">ANS</b>
-                        {/* {question.answers.find((ans) => ans.isCorrect)} */}
-                      </div>
-                    </div>
-                  ))}
                 </div>
-              )}
-            </>
-          )}
-          {loading && <Spinner animation="border" variant="warning" />}
-        </Row>
-        {error && <Alert variant="danger">{error}</Alert>}
-      </Container>
+                <br />
+                <Typography variant="h4">
+                  Question {providedAnswer.question + 1}
+                </Typography>
+                <Question
+                  currentQuestion={currentQuestion}
+                  providedAnswer={providedAnswer}
+                  submitQuestion={this.submitQuestion}
+                  setState={this.setState}
+                  updateProvidedAns={this.updateProvidedAns}
+                />
+                {loading && <LinearProgress color="secondary" />}
+              </>
+            ) : (
+              <div>
+                <div>
+                  <Typography variant="h3">
+                    Your Result: {exam.score}
+                  </Typography>
+                </div>
+
+                {exam.questions.map((question, idx) => (
+                  <div className="my-4" key={idx}>
+                    <h4>Question {idx + 1}</h4>
+                    {/* <p>{JSON.stringify(question)}</p> */}
+                    <div className="my-1">
+                      Duration: {question.duration} sec
+                    </div>
+                    <div className="my-1">Question: {question.text}</div>
+                    <div className="my-1">
+                      Provided Answer:{" "}
+                      {question.providedAnswer !== null ? (
+                        <b
+                          className={
+                            question.answers[question.providedAnswer].isCorrect
+                              ? "text-success"
+                              : "text-danger"
+                          }
+                        >
+                          {question.answers[question.providedAnswer].text}
+                        </b>
+                      ) : (
+                        <b className="text-danger">Answer did not provided</b>
+                      )}
+                    </div>
+                    <div className="my-1">
+                      Correct answer:
+                      <b className="text-info">ANS</b>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+        {loading && (
+          <div className="w-100">
+            {" "}
+            <LinearProgress color="secondary" />
+          </div>
+        )}
+        {error && <Alert severity="error">{error}</Alert>}
+      </Grid>
     );
   }
 }
