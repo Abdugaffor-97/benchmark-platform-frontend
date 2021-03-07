@@ -18,3 +18,7 @@ Company requirement:
   > When the exam is started, the user should be able to answer to each and every question in the exam
   > On completion, the user should be able to check it's own score
   > \*/
+
+.env config
+
+- REACT_APP_BE_URL=http://localhost:3001
